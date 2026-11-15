@@ -1,0 +1,41 @@
+function UsersTable({ users, loading, error }) {
+  if (loading) {
+    return <p>Chargement des utilisateurs...</p>;
+  }
+
+  if (error) {
+    return <p style={{ color: "red" }}>{error}</p>;
+  }
+
+  return (
+    <div>
+      <h2>Gestion des utilisateurs</h2>
+
+      <p>Nombre d'utilisateurs : {users.length}</p>
+
+      <table border="1" cellPadding="10">
+        <thead>
+          <tr>
+            <th>Nom</th>
+            <th>Email</th>
+            <th>Rôle</th>
+            <th>Statut</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {users.map((item) => (
+            <tr key={item._id || item.id}>
+              <td>{item.nom}</td>
+              <td>{item.email}</td>
+              <td>{item.role}</td>
+              <td>{item.statut}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+export default UsersTable;
