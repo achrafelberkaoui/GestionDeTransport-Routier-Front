@@ -2,20 +2,35 @@ function UserForm({
   newUser,
   setNewUser,
   handleCreateUser,
+  editingUser,
+  editForm,
+  setEditForm,
+  handleUpdateUser,
+  cancelEdit,
   success,
+  error,
 }) {
+  const isEditing = Boolean(editingUser);
+
+  const formData = isEditing ? editForm : newUser;
+  const setFormData = isEditing ? setEditForm : setNewUser;
+
+  const handleSubmit = isEditing ? handleUpdateUser : handleCreateUser;
+
   return (
     <div>
-      <h3>Ajouter un utilisateur</h3>
+      <h3>
+        {isEditing ? "Modifier un utilisateur" : "Ajouter un utilisateur"}
+      </h3>
 
-      <form onSubmit={handleCreateUser}>
+      <form onSubmit={handleSubmit}>
         <input
           type="text"
           placeholder="Nom"
-          value={newUser.nom}
+          value={formData.nom}
           onChange={(event) =>
-            setNewUser({
-              ...newUser,
+            setFormData({
+              ...formData,
               nom: event.target.value,
             })
           }
@@ -25,10 +40,10 @@ function UserForm({
         <input
           type="email"
           placeholder="Email"
-          value={newUser.email}
+          value={formData.email}
           onChange={(event) =>
-            setNewUser({
-              ...newUser,
+            setFormData({
+              ...formData,
               email: event.target.value,
             })
           }
@@ -37,24 +52,26 @@ function UserForm({
 
         <input
           type="password"
-          placeholder="Mot de passe"
+          placeholder={
+            isEditing ? "Nouveau mot de passe (facultatif)" : "Mot de passe"
+          }
           autoComplete="new-password"
           minLength={6}
-          value={newUser.password}
+          value={formData.password}
           onChange={(event) =>
-            setNewUser({
-              ...newUser,
+            setFormData({
+              ...formData,
               password: event.target.value,
             })
           }
-          required
+          required={!isEditing}
         />
 
         <select
-          value={newUser.role}
+          value={formData.role}
           onChange={(event) =>
-            setNewUser({
-              ...newUser,
+            setFormData({
+              ...formData,
               role: event.target.value,
             })
           }
@@ -63,12 +80,34 @@ function UserForm({
           <option value="admin">Admin</option>
         </select>
 
+        {isEditing && (
+          <select
+            value={formData.statut}
+            onChange={(event) =>
+              setFormData({
+                ...formData,
+                statut: event.target.value,
+              })
+            }
+          >
+            <option value="actif">Actif</option>
+            <option value="suspendu">Suspendu</option>
+          </select>
+        )}
+
         <button type="submit">
-          Ajouter utilisateur
+          {isEditing ? "Enregistrer les modifications" : "Ajouter utilisateur"}
         </button>
+
+        {isEditing && (
+          <button type="button" onClick={cancelEdit}>
+            Annuler
+          </button>
+        )}
       </form>
 
       {success && <p style={{ color: "green" }}>{success}</p>}
+      {error && <p style={{ color: "red" }}>{error}</p>}
     </div>
   );
 }

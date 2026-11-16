@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { apiRequest } from "../../services/api";
 
@@ -7,8 +6,17 @@ import UsersTable from "./components/UsersTable";
 
 function AdminDashboard({ user, onLogout }) {
   const [users, setUsers] = useState([]);
-  const [error, setError] = useState("");
+  const [listError, setListError] = useState("");
+  const [formError, setFormError] = useState("");
   const [loading, setLoading] = useState(true);
+  const [editingUser, setEditingUser] = useState(null);
+  const [editForm, setEditForm] = useState({
+    nom: "",
+    email: "",
+    password: "",
+    role: "driver",
+    statut: "actif",
+  });
 
   const [newUser, setNewUser] = useState({
     nom: "",
@@ -25,7 +33,7 @@ function AdminDashboard({ user, onLogout }) {
         const result = await apiRequest("/users");
         setUsers(result.users);
       } catch (error) {
-        setError(error.message);
+        setListError(error.message);
       } finally {
         setLoading(false);
       }
@@ -37,7 +45,7 @@ function AdminDashboard({ user, onLogout }) {
   const handleCreateUser = async (event) => {
     event.preventDefault();
 
-    setError("");
+    setFormError("");
     setSuccess("");
 
     try {
@@ -58,8 +66,85 @@ function AdminDashboard({ user, onLogout }) {
       const result = await apiRequest("/users");
       setUsers(result.users);
     } catch (error) {
-      setError(error.message);
+      setFormError(error.message);
     }
+  };
+
+  const handleDeleteUser = async (selectedUser) => {
+    const confirmed = window.confirm(
+      `Voulez-vous vraiment supprimer ${selectedUser.nom} ?`,
+    );
+
+    if (!confirmed) return;
+
+    try {
+      setListError("");
+
+      await apiRequest(`/users/${selectedUser._id}`, {
+        method: "DELETE",
+      });
+
+      setUsers((previousUsers) =>
+        previousUsers.filter((item) => item._id !== selectedUser._id),
+      );
+    } catch (error) {
+      setListError(error.message);
+    }
+  };
+
+  const handleUpdateUser = async (event) => {
+    event.preventDefault();
+
+    setFormError("");
+    setSuccess("");
+
+    try {
+      const updatedData = { ...editForm };
+
+      if (!updatedData.password) {
+        delete updatedData.password;
+      }
+
+      await apiRequest(`/users/${editingUser._id}`, {
+        method: "PATCH",
+        body: updatedData,
+      });
+
+      setSuccess("Utilisateur modifié avec succès !");
+
+      setEditingUser(null);
+
+      const result = await apiRequest("/users");
+      setUsers(result.users);
+
+      setEditForm({
+        nom: "",
+        email: "",
+        password: "",
+        role: "driver",
+        statut: "actif",
+      });
+    } catch (error) {
+      setFormError(error.message);
+    }
+  };
+
+  const handleEditUser = (selectedUser) => {
+    setEditingUser(selectedUser);
+
+    setEditForm({
+      nom: selectedUser.nom,
+      email: selectedUser.email,
+      password: "",
+      role: selectedUser.role,
+      statut: selectedUser.statut,
+    });
+  };
+
+  const cancelEdit = () => {
+    setEditingUser(null);
+    setFormError("");
+    setSuccess("");
   };
 
   return (
@@ -76,18 +161,23 @@ function AdminDashboard({ user, onLogout }) {
         newUser={newUser}
         setNewUser={setNewUser}
         handleCreateUser={handleCreateUser}
+        editingUser={editingUser}
+        editForm={editForm}
+        setEditForm={setEditForm}
+        handleUpdateUser={handleUpdateUser}
+        cancelEdit={cancelEdit}
         success={success}
+        error={formError}
       />
 
       <UsersTable
         users={users}
         loading={loading}
-        error={error}
+        error={listError}
+        onEdit={handleEditUser}
+        onDelete={handleDeleteUser}
       />
-
-      <button onClick={onLogout}>
-        Se déconnecter
-      </button>
+      <button onClick={onLogout}>Se déconnecter</button>
     </div>
   );
 }

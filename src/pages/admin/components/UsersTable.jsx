@@ -1,4 +1,4 @@
-function UsersTable({ users, loading, error }) {
+function UsersTable({ users, loading, error, onEdit, onDelete }) {
   if (loading) {
     return <p>Chargement des utilisateurs...</p>;
   }
@@ -20,6 +20,7 @@ function UsersTable({ users, loading, error }) {
             <th>Email</th>
             <th>Rôle</th>
             <th>Statut</th>
+            <th>Actions</th>
           </tr>
         </thead>
 
@@ -30,8 +31,22 @@ function UsersTable({ users, loading, error }) {
               <td>{item.email}</td>
               <td>{item.role}</td>
               <td>{item.statut}</td>
+              <td>
+                <button onClick={() => onEdit(item)}>
+                  Modifier
+                </button>
+
+                <button onClick={() => onDelete(item)}>
+                  Supprimer
+                </button>
+              </td>
             </tr>
           ))}
+            {users.length === 0 && (
+            <tr>
+              <td colSpan="5">Aucun utilisateur trouvé.</td>
+            </tr>
+          )}
         </tbody>
       </table>
     </div>
