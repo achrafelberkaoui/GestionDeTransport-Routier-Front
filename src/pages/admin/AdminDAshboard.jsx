@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { apiRequest } from "../../services/api";
-
+import CamionsSection from "./components/CamionsSection";
 import UserForm from "./components/UserForm";
 import UsersTable from "./components/UsersTable";
 
@@ -177,6 +177,12 @@ function AdminDashboard({ user, onLogout }) {
         onEdit={handleEditUser}
         onDelete={handleDeleteUser}
       />
+
+      <hr />
+
+      <h2>Gestion des camions</h2>
+
+      <CamionsSection />
       <button onClick={onLogout}>Se déconnecter</button>
     </div>
   );
