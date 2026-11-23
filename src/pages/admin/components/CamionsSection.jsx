@@ -1,8 +1,10 @@
+
 import { useEffect, useState } from "react";
 import { apiRequest } from "../../../services/api";
 
 import CamionForm from "./CamionForm";
 import CamionsTable from "./CamionsTable";
+import Modal from "../../../components/common/Modal";
 
 function CamionsSection() {
   const [camions, setCamions] = useState([]);
@@ -11,14 +13,17 @@ function CamionsSection() {
   const [formError, setFormError] = useState("");
   const [success, setSuccess] = useState("");
   const [editingCamion, setEditingCamion] = useState(null);
+  const [showModal, setShowModal] = useState(false);
 
-  const [formData, setFormData] = useState({
+  const initialForm = {
     matricule: "",
     marque: "",
     modele: "",
     kilometrage: 0,
     statut: "disponible",
-  });
+  };
+
+  const [formData, setFormData] = useState(initialForm);
 
   const fetchCamions = async () => {
     try {
@@ -36,6 +41,14 @@ function CamionsSection() {
     fetchCamions();
   }, []);
 
+  const openCreateModal = () => {
+    setEditingCamion(null);
+    setFormData(initialForm);
+    setFormError("");
+    setSuccess("");
+    setShowModal(true);
+  };
+
   const handleCreate = async (event) => {
     event.preventDefault();
     setFormError("");
@@ -51,16 +64,10 @@ function CamionsSection() {
       });
 
       setSuccess("Camion ajouté avec succès !");
-
-      setFormData({
-        matricule: "",
-        marque: "",
-        modele: "",
-        kilometrage: 0,
-        statut: "disponible",
-      });
-
       await fetchCamions();
+
+      setFormData(initialForm);
+      setShowModal(false);
     } catch (error) {
       setFormError(error.message);
     }
@@ -79,6 +86,7 @@ function CamionsSection() {
 
     setFormError("");
     setSuccess("");
+    setShowModal(true);
   };
 
   const handleUpdate = async (event) => {
@@ -96,17 +104,11 @@ function CamionsSection() {
       });
 
       setSuccess("Camion modifié avec succès !");
-      setEditingCamion(null);
-
-      setFormData({
-        matricule: "",
-        marque: "",
-        modele: "",
-        kilometrage: 0,
-        statut: "disponible",
-      });
-
       await fetchCamions();
+
+      setEditingCamion(null);
+      setFormData(initialForm);
+      setShowModal(false);
     } catch (error) {
       setFormError(error.message);
     }
@@ -114,21 +116,15 @@ function CamionsSection() {
 
   const handleCancel = () => {
     setEditingCamion(null);
+    setFormData(initialForm);
     setFormError("");
     setSuccess("");
-
-    setFormData({
-      matricule: "",
-      marque: "",
-      modele: "",
-      kilometrage: 0,
-      statut: "disponible",
-    });
+    setShowModal(false);
   };
 
   const handleDelete = async (camion) => {
     const confirmed = window.confirm(
-      `Voulez-vous vraiment supprimer le camion ${camion.matricule} ?`,
+      `Voulez-vous vraiment supprimer le camion ${camion.matricule} ?`
     );
 
     if (!confirmed) return;
@@ -141,7 +137,7 @@ function CamionsSection() {
       });
 
       setCamions((previousCamions) =>
-        previousCamions.filter((item) => item._id !== camion._id),
+        previousCamions.filter((item) => item._id !== camion._id)
       );
     } catch (error) {
       setError(error.message);
@@ -150,17 +146,19 @@ function CamionsSection() {
 
   return (
     <div>
-      <CamionForm
-        camion={editingCamion}
-        formData={formData}
-        setFormData={setFormData}
-        onSubmit={editingCamion ? handleUpdate : handleCreate}
-        onCancel={handleCancel}
-        error={formError}
-        success={success}
-      />
+      <div className="management-toolbar">
+        <div>
+          <h2>Gestion des camions</h2>
+          <p>Gérez les véhicules de votre flotte.</p>
+        </div>
 
-      <hr />
+        <button
+          className="btn btn-primary"
+          onClick={openCreateModal}
+        >
+          + Ajouter un camion
+        </button>
+      </div>
 
       <CamionsTable
         camions={camions}
@@ -169,6 +167,25 @@ function CamionsSection() {
         onEdit={handleEdit}
         onDelete={handleDelete}
       />
+
+      {showModal && (
+        <Modal
+          title={
+            editingCamion ? "Modifier un camion" : "Ajouter un camion"
+          }
+          onClose={handleCancel}
+        >
+          <CamionForm
+            camion={editingCamion}
+            formData={formData}
+            setFormData={setFormData}
+            onSubmit={editingCamion ? handleUpdate : handleCreate}
+            onCancel={handleCancel}
+            error={formError}
+            success={success}
+          />
+        </Modal>
+      )}
     </div>
   );
 }

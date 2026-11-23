@@ -1,3 +1,4 @@
+
 function UserForm({
   newUser,
   setNewUser,
@@ -7,7 +8,6 @@ function UserForm({
   setEditForm,
   handleUpdateUser,
   cancelEdit,
-  success,
   error,
 }) {
   const isEditing = Boolean(editingUser);
@@ -17,98 +17,106 @@ function UserForm({
 
   const handleSubmit = isEditing ? handleUpdateUser : handleCreateUser;
 
+  const handleChange = (event) => {
+    const { name, value } = event.target;
+
+    setFormData({
+      ...formData,
+      [name]: value,
+    });
+  };
+
   return (
-    <div>
-      <h3>
-        {isEditing ? "Modifier un utilisateur" : "Ajouter un utilisateur"}
-      </h3>
-
-      <form onSubmit={handleSubmit}>
+    <form className="modal-form" onSubmit={handleSubmit}>
+      <div className="form-group">
+        <label htmlFor="nom">Nom complet</label>
         <input
+          id="nom"
           type="text"
-          placeholder="Nom"
+          name="nom"
+          placeholder="Nom complet"
           value={formData.nom}
-          onChange={(event) =>
-            setFormData({
-              ...formData,
-              nom: event.target.value,
-            })
-          }
+          onChange={handleChange}
           required
         />
+      </div>
 
+      <div className="form-group">
+        <label htmlFor="email">Adresse email</label>
         <input
+          id="email"
           type="email"
-          placeholder="Email"
+          name="email"
+          placeholder="exemple@email.com"
           value={formData.email}
-          onChange={(event) =>
-            setFormData({
-              ...formData,
-              email: event.target.value,
-            })
-          }
+          onChange={handleChange}
           required
         />
+      </div>
 
+      <div className="form-group">
+        <label htmlFor="password">Mot de passe</label>
         <input
+          id="password"
           type="password"
+          name="password"
           placeholder={
-            isEditing ? "Nouveau mot de passe (facultatif)" : "Mot de passe"
+            isEditing
+              ? "Nouveau mot de passe (facultatif)"
+              : "Mot de passe"
           }
           autoComplete="new-password"
           minLength={6}
           value={formData.password}
-          onChange={(event) =>
-            setFormData({
-              ...formData,
-              password: event.target.value,
-            })
-          }
+          onChange={handleChange}
           required={!isEditing}
         />
+      </div>
 
+      <div className="form-group">
+        <label htmlFor="role">Rôle</label>
         <select
+          id="role"
+          name="role"
           value={formData.role}
-          onChange={(event) =>
-            setFormData({
-              ...formData,
-              role: event.target.value,
-            })
-          }
+          onChange={handleChange}
         >
-          <option value="driver">Driver</option>
-          <option value="admin">Admin</option>
+          <option value="driver">Chauffeur</option>
+          <option value="admin">Administrateur</option>
         </select>
+      </div>
 
-        {isEditing && (
+      {isEditing && (
+        <div className="form-group">
+          <label htmlFor="statut">Statut</label>
           <select
+            id="statut"
+            name="statut"
             value={formData.statut}
-            onChange={(event) =>
-              setFormData({
-                ...formData,
-                statut: event.target.value,
-              })
-            }
+            onChange={handleChange}
           >
             <option value="actif">Actif</option>
             <option value="suspendu">Suspendu</option>
           </select>
-        )}
+        </div>
+      )}
 
-        <button type="submit">
-          {isEditing ? "Enregistrer les modifications" : "Ajouter utilisateur"}
+      {error && <p className="form-error">{error}</p>}
+
+      <div className="modal-form-actions">
+        <button
+          type="button"
+          className="btn btn-secondary"
+          onClick={cancelEdit}
+        >
+          Annuler
         </button>
 
-        {isEditing && (
-          <button type="button" onClick={cancelEdit}>
-            Annuler
-          </button>
-        )}
-      </form>
-
-      {success && <p style={{ color: "green" }}>{success}</p>}
-      {error && <p style={{ color: "red" }}>{error}</p>}
-    </div>
+        <button type="submit" className="btn btn-primary">
+          {isEditing ? "Enregistrer les modifications" : "Ajouter"}
+        </button>
+      </div>
+    </form>
   );
 }
 

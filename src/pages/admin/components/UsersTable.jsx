@@ -1,19 +1,21 @@
+
 function UsersTable({ users, loading, error, onEdit, onDelete }) {
   if (loading) {
     return <p>Chargement des utilisateurs...</p>;
   }
 
   if (error) {
-    return <p style={{ color: "red" }}>{error}</p>;
+    return <p className="form-error">{error}</p>;
   }
 
   return (
-    <div>
-      <h2>Gestion des utilisateurs</h2>
+    <div className="table-wrapper">
+      <div className="table-heading">
+        <h2>Liste des utilisateurs</h2>
+        <p>Nombre d'utilisateurs : {users.length}</p>
+      </div>
 
-      <p>Nombre d'utilisateurs : {users.length}</p>
-
-      <table border="1" cellPadding="10">
+      <table>
         <thead>
           <tr>
             <th>Nom</th>
@@ -29,22 +31,42 @@ function UsersTable({ users, loading, error, onEdit, onDelete }) {
             <tr key={item._id || item.id}>
               <td>{item.nom}</td>
               <td>{item.email}</td>
-              <td>{item.role}</td>
-              <td>{item.statut}</td>
-              <td>
-                <button onClick={() => onEdit(item)}>
-                  Modifier
-                </button>
 
-                <button onClick={() => onDelete(item)}>
-                  Supprimer
-                </button>
+              <td>
+                {item.role === "admin" ? "Administrateur" : "Chauffeur"}
+              </td>
+
+              <td>
+                <span className={`status-badge status-${item.statut}`}>
+                  {item.statut === "actif" ? "Actif" : "Suspendu"}
+                </span>
+              </td>
+
+              <td>
+                <div className="table-actions">
+                  <button
+                    className="action-edit"
+                    onClick={() => onEdit(item)}
+                  >
+                    Modifier
+                  </button>
+
+                  <button
+                    className="action-delete"
+                    onClick={() => onDelete(item)}
+                  >
+                    Supprimer
+                  </button>
+                </div>
               </td>
             </tr>
           ))}
-            {users.length === 0 && (
+
+          {users.length === 0 && (
             <tr>
-              <td colSpan="5">Aucun utilisateur trouvé.</td>
+              <td colSpan="5" className="table-empty">
+                Aucun utilisateur trouvé.
+              </td>
             </tr>
           )}
         </tbody>

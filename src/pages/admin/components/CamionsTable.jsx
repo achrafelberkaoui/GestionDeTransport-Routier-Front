@@ -4,18 +4,15 @@ function CamionsTable({ camions, loading, error, onEdit, onDelete }) {
   }
 
   if (error) {
-    return <p style={{ color: "red" }}>{error}</p>;
-  }
-
-  if (camions.length === 0) {
-    return <p>Aucun camion trouvé.</p>;
+    return <p className="form-error">{error}</p>;
   }
 
   return (
-    <div>
-      <h2>Liste des camions</h2>
-
-      <p>Nombre de camions : {camions.length}</p>
+    <div className="table-wrapper">
+      <div className="table-heading">
+        <h3>Liste des camions</h3>
+        <span>{camions.length} véhicule(s)</span>
+      </div>
 
       <table>
         <thead>
@@ -32,18 +29,46 @@ function CamionsTable({ camions, loading, error, onEdit, onDelete }) {
         <tbody>
           {camions.map((camion) => (
             <tr key={camion._id}>
-              <td>{camion.matricule}</td>
+              <td>
+                <strong>{camion.matricule}</strong>
+              </td>
               <td>{camion.marque}</td>
               <td>{camion.modele}</td>
-              <td>{camion.kilometrage} km</td>
-              <td>{camion.statut}</td>
-              <td>
-                <button onClick={() => onEdit(camion)}>Modifier</button>
+              <td>{Number(camion.kilometrage).toLocaleString("fr-FR")} km</td>
 
-                <button onClick={() => onDelete(camion)}>Supprimer</button>
+              <td>
+                <span className={`status-badge status-${camion.statut}`}>
+                  {camion.statut}
+                </span>
+              </td>
+
+              <td>
+                <div className="table-actions">
+                  <button
+                    className="action-edit"
+                    onClick={() => onEdit(camion)}
+                  >
+                    Modifier
+                  </button>
+
+                  <button
+                    className="action-delete"
+                    onClick={() => onDelete(camion)}
+                  >
+                    Supprimer
+                  </button>
+                </div>
               </td>
             </tr>
           ))}
+
+          {camions.length === 0 && (
+            <tr>
+              <td colSpan="6" className="table-empty">
+                Aucun camion trouvé.
+              </td>
+            </tr>
+          )}
         </tbody>
       </table>
     </div>

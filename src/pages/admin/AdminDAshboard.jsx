@@ -1,15 +1,21 @@
 import { useEffect, useState } from "react";
 import { apiRequest } from "../../services/api";
+
 import CamionsSection from "./components/CamionsSection";
 import UserForm from "./components/UserForm";
 import UsersTable from "./components/UsersTable";
-
+import TrajetsSection from "./components/TrajetsSection";
+import DashboardLayout from "../../components/layout/DashboardLayout";
+import Modal from "../../components/common/Modal";
 function AdminDashboard({ user, onLogout }) {
   const [users, setUsers] = useState([]);
   const [listError, setListError] = useState("");
   const [formError, setFormError] = useState("");
   const [loading, setLoading] = useState(true);
   const [editingUser, setEditingUser] = useState(null);
+  const [activeSection, setActiveSection] = useState("overview");
+  const [showUserModal, setShowUserModal] = useState(false);
+
   const [editForm, setEditForm] = useState({
     nom: "",
     email: "",
@@ -44,7 +50,6 @@ function AdminDashboard({ user, onLogout }) {
 
   const handleCreateUser = async (event) => {
     event.preventDefault();
-
     setFormError("");
     setSuccess("");
 
@@ -55,7 +60,7 @@ function AdminDashboard({ user, onLogout }) {
       });
 
       setSuccess("Utilisateur créé avec succès !");
-
+      setShowUserModal(false);
       setNewUser({
         nom: "",
         email: "",
@@ -94,7 +99,6 @@ function AdminDashboard({ user, onLogout }) {
 
   const handleUpdateUser = async (event) => {
     event.preventDefault();
-
     setFormError("");
     setSuccess("");
 
@@ -111,7 +115,7 @@ function AdminDashboard({ user, onLogout }) {
       });
 
       setSuccess("Utilisateur modifié avec succès !");
-
+      setShowUserModal(false);
       setEditingUser(null);
 
       const result = await apiRequest("/users");
@@ -131,7 +135,6 @@ function AdminDashboard({ user, onLogout }) {
 
   const handleEditUser = (selectedUser) => {
     setEditingUser(selectedUser);
-
     setEditForm({
       nom: selectedUser.nom,
       email: selectedUser.email,
@@ -139,52 +142,192 @@ function AdminDashboard({ user, onLogout }) {
       role: selectedUser.role,
       statut: selectedUser.statut,
     });
+    setShowUserModal(true);
   };
 
   const cancelEdit = () => {
     setEditingUser(null);
+    setShowUserModal(false);
     setFormError("");
     setSuccess("");
   };
 
+  const navigation = [
+    { id: "overview", label: "Vue d'ensemble", icon: "⌂" },
+    { id: "users", label: "Utilisateurs", icon: "♙" },
+    { id: "trucks", label: "Camions", icon: "▣" },
+    { id: "trips", label: "Trajets", icon: "⇄" },
+  ];
+
+  const sectionTitles = {
+    overview: "Vue d'ensemble",
+    users: "Gestion des utilisateurs",
+    trucks: "Gestion des camions",
+    trips: "Gestion des trajets",
+  };
+
   return (
-    <div>
-      <h1>Dashboard Admin</h1>
+    <DashboardLayout
+      user={user}
+      onLogout={onLogout}
+      navigation={navigation}
+      activeSection={activeSection}
+      setActiveSection={setActiveSection}
+      title={sectionTitles[activeSection]}
+    >
+      {activeSection === "overview" && (
+        <>
+          <section className="welcome-banner">
+            <div>
+              <span>ESPACE ADMINISTRATEUR</span>
+              <h2>Bienvenue, {user.nom} 👋</h2>
+              <p>
+                Gérez votre flotte et suivez vos opérations depuis votre espace
+                centralisé.
+              </p>
+            </div>
 
-      <h2>Bienvenue {user.nom}</h2>
-      <p>Email : {user.email}</p>
-      <p>Rôle : {user.role}</p>
+            <div className="welcome-decoration">F</div>
+          </section>
 
-      <hr />
+          <section className="stats-grid">
+            <article className="stat-card">
+              <div className="stat-icon blue">♙</div>
+              <span>Utilisateurs</span>
+              <strong>{loading ? "..." : users.length}</strong>
+              <small>Comptes enregistrés</small>
+            </article>
 
-      <UserForm
-        newUser={newUser}
-        setNewUser={setNewUser}
-        handleCreateUser={handleCreateUser}
-        editingUser={editingUser}
-        editForm={editForm}
-        setEditForm={setEditForm}
-        handleUpdateUser={handleUpdateUser}
-        cancelEdit={cancelEdit}
-        success={success}
-        error={formError}
-      />
+            <article className="stat-card">
+              <div className="stat-icon cyan">♧</div>
+              <span>Chauffeurs</span>
+              <strong>
+                {loading
+                  ? "..."
+                  : users.filter((item) => item.role === "driver").length}
+              </strong>
+              <small>Comptes chauffeur</small>
+            </article>
 
-      <UsersTable
-        users={users}
-        loading={loading}
-        error={listError}
-        onEdit={handleEditUser}
-        onDelete={handleDeleteUser}
-      />
+            <article className="stat-card">
+              <div className="stat-icon purple">♔</div>
+              <span>Administrateurs</span>
+              <strong>
+                {loading
+                  ? "..."
+                  : users.filter((item) => item.role === "admin").length}
+              </strong>
+              <small>Comptes administrateur</small>
+            </article>
+          </section>
 
-      <hr />
+          <section className="dashboard-panel">
+            <div className="panel-heading">
+              <div>
+                <span>ACCÈS RAPIDE</span>
+                <h2>Gestion de votre flotte</h2>
+              </div>
+            </div>
 
-      <h2>Gestion des camions</h2>
+            <div className="quick-actions">
+              <button onClick={() => setActiveSection("users")}>
+                <span>♙</span>
+                <strong>Utilisateurs</strong>
+                <small>Gérer les comptes</small>
+                <b>→</b>
+              </button>
 
-      <CamionsSection />
-      <button onClick={onLogout}>Se déconnecter</button>
-    </div>
+              <button onClick={() => setActiveSection("trucks")}>
+                <span>▣</span>
+                <strong>Camions</strong>
+                <small>Gérer les véhicules</small>
+                <b>→</b>
+              </button>
+
+              <button onClick={() => setActiveSection("trips")}>
+                <span>⇄</span>
+                <strong>Trajets</strong>
+                <small>Suivre les missions</small>
+                <b>→</b>
+              </button>
+            </div>
+          </section>
+        </>
+      )}
+
+      {activeSection === "users" && (
+        <section className="dashboard-panel management-panel">
+          <div className="management-toolbar">
+            <div>
+              <h2>Gestion des utilisateurs</h2>
+              <p>Gérez les comptes administrateurs et chauffeurs.</p>
+            </div>
+
+            <button
+              className="btn btn-primary"
+              onClick={() => {
+                setEditingUser(null);
+                setNewUser({
+                  nom: "",
+                  email: "",
+                  password: "",
+                  role: "driver",
+                });
+                setFormError("");
+                setSuccess("");
+                setShowUserModal(true);
+              }}
+            >
+              + Ajouter un utilisateur
+            </button>
+          </div>
+
+          <UsersTable
+            users={users}
+            loading={loading}
+            error={listError}
+            onEdit={handleEditUser}
+            onDelete={handleDeleteUser}
+          />
+
+          {showUserModal && (
+            <Modal
+              title={
+                editingUser
+                  ? "Modifier un utilisateur"
+                  : "Ajouter un utilisateur"
+              }
+              onClose={cancelEdit}
+            >
+              <UserForm
+                newUser={newUser}
+                setNewUser={setNewUser}
+                handleCreateUser={handleCreateUser}
+                editingUser={editingUser}
+                editForm={editForm}
+                setEditForm={setEditForm}
+                handleUpdateUser={handleUpdateUser}
+                cancelEdit={cancelEdit}
+                success={success}
+                error={formError}
+              />
+            </Modal>
+          )}
+        </section>
+      )}
+
+      {activeSection === "trucks" && (
+        <section className="dashboard-panel management-panel">
+          <CamionsSection />
+        </section>
+      )}
+
+      {activeSection === "trips" && (
+        <section className="dashboard-panel management-panel">
+          <TrajetsSection />
+        </section>
+      )}
+    </DashboardLayout>
   );
 }
 

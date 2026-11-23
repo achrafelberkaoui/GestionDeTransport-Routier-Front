@@ -1,3 +1,4 @@
+
 function CamionForm({
   camion,
   formData,
@@ -5,95 +6,97 @@ function CamionForm({
   onSubmit,
   onCancel,
   error,
-  success,
 }) {
   const isEditing = Boolean(camion);
 
+  const handleChange = (event) => {
+    const { name, value } = event.target;
+
+    setFormData((previous) => ({
+      ...previous,
+      [name]: value,
+    }));
+  };
+
   return (
-    <div>
-      <h3>{isEditing ? "Modifier un camion" : "Ajouter un camion"}</h3>
-
-      <form onSubmit={onSubmit}>
+    <form onSubmit={onSubmit} className="modal-form">
+      <div className="form-group">
+        <label>Matricule</label>
         <input
+          name="matricule"
           type="text"
-          placeholder="Matricule"
+          placeholder="Ex : 12345-A-6"
           value={formData.matricule}
-          onChange={(event) =>
-            setFormData({
-              ...formData,
-              matricule: event.target.value,
-            })
-          }
+          onChange={handleChange}
           required
         />
+      </div>
 
+      <div className="form-group">
+        <label>Marque</label>
         <input
+          name="marque"
           type="text"
-          placeholder="Marque"
+          placeholder="Ex : Renault"
           value={formData.marque}
-          onChange={(event) =>
-            setFormData({
-              ...formData,
-              marque: event.target.value,
-            })
-          }
+          onChange={handleChange}
           required
         />
+      </div>
 
+      <div className="form-group">
+        <label>Modèle</label>
         <input
+          name="modele"
           type="text"
-          placeholder="Modèle"
+          placeholder="Ex : Trucks T"
           value={formData.modele}
-          onChange={(event) =>
-            setFormData({
-              ...formData,
-              modele: event.target.value,
-            })
-          }
+          onChange={handleChange}
           required
         />
+      </div>
 
+      <div className="form-group">
+        <label>Kilométrage</label>
         <input
+          name="kilometrage"
           type="number"
-          placeholder="Kilométrage"
           min="0"
           value={formData.kilometrage}
-          onChange={(event) =>
-            setFormData({
-              ...formData,
-              kilometrage: event.target.value,
-            })
-          }
+          onChange={handleChange}
+          required
         />
+      </div>
 
+      <div className="form-group">
+        <label>Statut</label>
         <select
+          name="statut"
           value={formData.statut}
-          onChange={(event) =>
-            setFormData({
-              ...formData,
-              statut: event.target.value,
-            })
-          }
+          onChange={handleChange}
         >
           <option value="disponible">Disponible</option>
           <option value="maintenance">Maintenance</option>
           <option value="archive">Archivé</option>
         </select>
+      </div>
 
-        <button type="submit">
-          {isEditing ? "Enregistrer" : "Ajouter le camion"}
+      {error && <p className="form-error">{error}</p>}
+
+      <div className="modal-form-actions">
+        <button type="submit" className="btn btn-primary">
+          {isEditing ? "Enregistrer les modifications" : "Ajouter le camion"}
         </button>
 
-        {isEditing && (
-          <button type="button" onClick={onCancel}>
-            Annuler
-          </button>
-        )}
-      </form>
-
-      {success && <p style={{ color: "green" }}>{success}</p>}
-      {error && <p style={{ color: "red" }}>{error}</p>}
-    </div>
+        <button
+          type="button"
+          className="btn btn-secondary"
+          onClick={onCancel}
+        >
+          Annuler
+        </button>
+      </div>
+    </form>
   );
 }
 
