@@ -1296,3 +1296,30 @@ button {
     grid-template-columns: 1fr;
   }
 }
+
+.error-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 24px;
+}
+
+.error-page h1 {
+  font-size: 80px;
+  color: #2563eb;
+  margin: 0;
+}
+
+.error-page h2 {
+  margin: 12px 0;
+}
+
+.error-page a {
+  margin-top: 20px;
+  color: #2563eb;
+  text-decoration: none;
+  font-weight: 600;
+}
