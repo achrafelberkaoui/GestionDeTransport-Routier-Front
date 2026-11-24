@@ -7,6 +7,8 @@ import UsersTable from "./components/UsersTable";
 import TrajetsSection from "./components/TrajetsSection";
 import DashboardLayout from "../../components/layout/DashboardLayout";
 import Modal from "../../components/common/Modal";
+import { useLocation, useNavigate } from "react-router-dom";
+import NotFound from "../errors/NotFound";
 function AdminDashboard({ user, onLogout }) {
   const [users, setUsers] = useState([]);
   const [listError, setListError] = useState("");
@@ -132,7 +134,8 @@ function AdminDashboard({ user, onLogout }) {
       setFormError(error.message);
     }
   };
-
+  const navigate = useNavigate();
+  const location = useLocation();
   const handleEditUser = (selectedUser) => {
     setEditingUser(selectedUser);
     setEditForm({
@@ -153,12 +156,40 @@ function AdminDashboard({ user, onLogout }) {
   };
 
   const navigation = [
-    { id: "overview", label: "Vue d'ensemble", icon: "⌂" },
-    { id: "users", label: "Utilisateurs", icon: "♙" },
-    { id: "trucks", label: "Camions", icon: "▣" },
-    { id: "trips", label: "Trajets", icon: "⇄" },
+    {
+      id: "overview",
+      label: "Vue d'ensemble",
+      icon: "⌂",
+      path: "/admin",
+    },
+    {
+      id: "users",
+      label: "Utilisateurs",
+      icon: "♙",
+      path: "/admin/utilisateurs",
+    },
+    {
+      id: "trucks",
+      label: "Camions",
+      icon: "▣",
+      path: "/admin/camions",
+    },
+    {
+      id: "trips",
+      label: "Trajets",
+      icon: "⇄",
+      path: "/admin/trajets",
+    },
   ];
-
+  const routes = {
+    "/admin": "overview",
+    "/admin/utilisateurs": "users",
+    "/admin/camions": "trucks",
+    "/admin/trajets": "trips",
+  };
+  useEffect(() => {
+    setActiveSection(routes[location.pathname] || "overview");
+  }, [location.pathname]);
   const sectionTitles = {
     overview: "Vue d'ensemble",
     users: "Gestion des utilisateurs",
@@ -166,6 +197,9 @@ function AdminDashboard({ user, onLogout }) {
     trips: "Gestion des trajets",
   };
 
+  if (!routes[location.pathname]) {
+    return <NotFound />;
+  }
   return (
     <DashboardLayout
       user={user}
@@ -230,21 +264,21 @@ function AdminDashboard({ user, onLogout }) {
             </div>
 
             <div className="quick-actions">
-              <button onClick={() => setActiveSection("users")}>
+              <button onClick={() => navigate("/admin/utilisateurs")}>
                 <span>♙</span>
                 <strong>Utilisateurs</strong>
                 <small>Gérer les comptes</small>
                 <b>→</b>
               </button>
 
-              <button onClick={() => setActiveSection("trucks")}>
+              <button onClick={() => navigate("/admin/camions")}>
                 <span>▣</span>
                 <strong>Camions</strong>
                 <small>Gérer les véhicules</small>
                 <b>→</b>
               </button>
 
-              <button onClick={() => setActiveSection("trips")}>
+              <button onClick={() => navigate("/admin/trajets")}>
                 <span>⇄</span>
                 <strong>Trajets</strong>
                 <small>Suivre les missions</small>

@@ -1,10 +1,7 @@
-function Sidebar({
-  user,
-  onLogout,
-  navigation,
-  activeSection,
-  setActiveSection,
-}) {
+
+import { NavLink } from "react-router-dom";
+
+function Sidebar({ user, onLogout, navigation }) {
   return (
     <aside className="dashboard-sidebar">
       <div className="dashboard-logo">
@@ -21,20 +18,22 @@ function Sidebar({
 
       <nav className="sidebar-navigation">
         {navigation.map((item) => (
-          <button
+          <NavLink
             key={item.id}
-            className={`sidebar-link ${
-              activeSection === item.id ? "active" : ""
-            }`}
-            onClick={() => setActiveSection(item.id)}
+            to={item.path}
+            end={item.path === "/admin" || item.path === "/driver"}
+            className={({ isActive }) =>
+              `sidebar-link ${isActive ? "active" : ""}`
+            }
           >
-            <span className="sidebar-icon">{item.icon}</span>
-            {item.label}
-
-            {activeSection === item.id && (
-              <span className="sidebar-indicator" />
+            {({ isActive }) => (
+              <>
+                <span className="sidebar-icon">{item.icon}</span>
+                {item.label}
+                {isActive && <span className="sidebar-indicator" />}
+              </>
             )}
-          </button>
+          </NavLink>
         ))}
       </nav>
 
@@ -46,7 +45,9 @@ function Sidebar({
 
           <div className="sidebar-user-info">
             <strong>{user.nom}</strong>
-            <span>Administrateur</span>
+            <span>
+              {user.role === "admin" ? "Administrateur" : "Chauffeur"}
+            </span>
           </div>
         </div>
 

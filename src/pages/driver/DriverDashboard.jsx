@@ -1,7 +1,8 @@
-
 import { useEffect, useState } from "react";
 import { apiRequest } from "../../services/api";
 import DashboardLayout from "../../components/layout/DashboardLayout";
+import { useLocation, useNavigate } from "react-router-dom";
+import NotFound from "../errors/NotFound";
 
 function DriverDashboard({ user, onLogout }) {
   const [trajets, setTrajets] = useState([]);
@@ -23,12 +24,19 @@ function DriverDashboard({ user, onLogout }) {
 
     fetchTrajets();
   }, []);
-
+  const location = useLocation();
+  const navigate = useNavigate();
   const navigation = [
-    { id: "overview", label: "Vue d'ensemble", icon: "⌂" },
-    { id: "trips", label: "Mes trajets", icon: "⇄" },
+    { id: "overview", label: "Vue d'ensemble", icon: "⌂", path: "/driver" },
+    { id: "trips", label: "Mes trajets", icon: "⇄", path: "/driver/trajets" },
   ];
-
+  const routes = {
+    "/driver": "overview",
+    "/driver/trajets": "trips",
+  };
+  useEffect(() => {
+    setActiveSection(routes[location.pathname] || "overview");
+  }, [location.pathname]);
   const sectionTitles = {
     overview: "Vue d'ensemble",
     trips: "Mes trajets",
@@ -57,6 +65,9 @@ function DriverDashboard({ user, onLogout }) {
     termine: "Terminé",
     annule: "Annulé",
   };
+  if (!routes[location.pathname]) {
+    return <NotFound />;
+  }
 
   return (
     <DashboardLayout
@@ -139,7 +150,7 @@ function DriverDashboard({ user, onLogout }) {
 
             <button
               className="btn btn-primary"
-              onClick={() => setActiveSection("trips")}
+              onClick={() => navigate("/driver/trajets")}
             >
               Consulter mes trajets →
             </button>

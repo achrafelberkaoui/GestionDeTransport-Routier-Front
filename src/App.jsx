@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
 import Login from "./pages/auth/Login";
-import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminDashboard from "./pages/admin/AdminDAshboard";
 import DriverDashboard from "./pages/driver/DriverDashboard";
 
 import { apiRequest } from "./services/api";
@@ -61,7 +61,7 @@ function App() {
 
       <Route element={<ProtectedRoutes user={user} />}>
         <Route
-          path="/admin"
+          path="/admin/*"
           element={
             user?.role === "admin" ? (
               <AdminDashboard user={user} onLogout={handleLogout} />
@@ -71,7 +71,7 @@ function App() {
           }
         />
         <Route
-          path="/driver"
+          path="/driver/*"
           element={
             user?.role === "driver" ? (
               <DriverDashboard user={user} onLogout={handleLogout} />
@@ -94,9 +94,9 @@ function App() {
                     ? "/driver"
                     : "/403"
             }
+            replace
           />
         }
-        replace
       />
       <Route path="*" element={<NotFound />} />
     </Routes>
