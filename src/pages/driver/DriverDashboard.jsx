@@ -3,8 +3,10 @@ import { apiRequest } from "../../services/api";
 import DashboardLayout from "../../components/layout/DashboardLayout";
 import { useLocation, useNavigate } from "react-router-dom";
 import NotFound from "../errors/NotFound";
+import useAuth from "../../hooks/useAuth";
 
-function DriverDashboard({ user, onLogout }) {
+function DriverDashboard() {
+  const { user, logout } = useAuth();
   const [trajets, setTrajets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -72,7 +74,7 @@ function DriverDashboard({ user, onLogout }) {
   return (
     <DashboardLayout
       user={user}
-      onLogout={onLogout}
+      onLogout={logout}
       navigation={navigation}
       activeSection={activeSection}
       setActiveSection={setActiveSection}

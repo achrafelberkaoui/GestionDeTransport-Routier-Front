@@ -1,10 +1,6 @@
-import { useEffect, useState } from "react";
-
 import Login from "./pages/auth/Login";
 import AdminDashboard from "./pages/admin/AdminDAshboard";
 import DriverDashboard from "./pages/driver/DriverDashboard";
-
-import { apiRequest } from "./services/api";
 import {
   Navigate,
   Route,
@@ -15,47 +11,16 @@ import {
 import Forbidden from "./pages/errors/Forbidden";
 import ProtectedRoutes from "./components/Routes/ProtectedRoutes";
 import NotFound from "./pages/errors/NotFound";
+import useAuth from "./hooks/useAuth";
 
 function App() {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const checkSession = async () => {
-      try {
-        const result = await apiRequest("/auth/me");
-        setUser(result.user);
-      } catch (error) {
-        setUser(null);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    checkSession();
-  }, []);
-
-  const handleLogout = async () => {
-    try {
-      await apiRequest("/auth/logout", {
-        method: "POST",
-      });
-    } catch (error) {
-      console.error("Erreur de déconnexion :", error.message);
-    } finally {
-      setUser(null);
-    }
-  };
-
+  const { user, loading, logout } = useAuth();
   if (loading) {
     return <p>Vérification de votre session...</p>;
   }
   return (
     <Routes>
-      <Route
-        path="/login"
-        element={<LoginRoute user={user} setUser={setUser} />}
-      />
+      <Route path="/login" element={<LoginRoute user={user} />} />
 
       <Route path="/403" element={<Forbidden />} />
 
@@ -64,7 +29,7 @@ function App() {
           path="/admin/*"
           element={
             user?.role === "admin" ? (
-              <AdminDashboard user={user} onLogout={handleLogout} />
+              <AdminDashboard />
             ) : (
               <Navigate to="/403" replace />
             )
@@ -74,7 +39,7 @@ function App() {
           path="/driver/*"
           element={
             user?.role === "driver" ? (
-              <DriverDashboard user={user} onLogout={handleLogout} />
+              <DriverDashboard />
             ) : (
               <Navigate to="/403" replace />
             )
@@ -102,9 +67,10 @@ function App() {
     </Routes>
   );
 }
-function LoginRoute({ user, setUser }) {
+function LoginRoute({ user }) {
   const navigate = useNavigate();
   const location = useLocation();
+  const { login } = useAuth();
 
   if (user) {
     return (
@@ -112,9 +78,8 @@ function LoginRoute({ user, setUser }) {
     );
   }
 
-  const handleLoginSuccess = (result) => {
-    setUser(result.user);
-
+  const handleLoginSuccess = async (credentials) => {
+    const result = await login(credentials)
     const requestedPath = location.state?.from?.pathname;
 
     navigate(

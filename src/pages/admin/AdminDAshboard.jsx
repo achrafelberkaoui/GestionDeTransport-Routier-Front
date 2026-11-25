@@ -10,7 +10,9 @@ import Modal from "../../components/common/Modal";
 import { useLocation, useNavigate } from "react-router-dom";
 import NotFound from "../errors/NotFound";
 import RemorquesSection from "./components/RemorquesSection";
-function AdminDashboard({ user, onLogout }) {
+import useAuth from "../../hooks/useAuth";
+function AdminDashboard() {
+  const { user, logout } = useAuth();
   const [users, setUsers] = useState([]);
   const [listError, setListError] = useState("");
   const [formError, setFormError] = useState("");
@@ -18,7 +20,6 @@ function AdminDashboard({ user, onLogout }) {
   const [editingUser, setEditingUser] = useState(null);
   const [activeSection, setActiveSection] = useState("overview");
   const [showUserModal, setShowUserModal] = useState(false);
-
   const [editForm, setEditForm] = useState({
     nom: "",
     email: "",
@@ -212,7 +213,7 @@ function AdminDashboard({ user, onLogout }) {
   return (
     <DashboardLayout
       user={user}
-      onLogout={onLogout}
+      onLogout={logout}
       navigation={navigation}
       activeSection={activeSection}
       setActiveSection={setActiveSection}

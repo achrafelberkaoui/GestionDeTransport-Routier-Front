@@ -1,7 +1,4 @@
-
 import { useState } from "react";
-import { apiRequest } from "../../services/api";
-
 function Login({ onLoginSuccess }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -14,12 +11,7 @@ function Login({ onLoginSuccess }) {
     setLoading(true);
 
     try {
-      const result = await apiRequest("/auth/login", {
-        method: "POST",
-        body: { email, password },
-      });
-
-      onLoginSuccess(result);
+      await onLoginSuccess({ email, password });
     } catch (error) {
       setError(error.message);
     } finally {
@@ -32,17 +24,21 @@ function Login({ onLoginSuccess }) {
       <section className="login-visual">
         <div className="login-brand">
           <div className="brand-icon">F</div>
-          <span>FleetTrack<span className="brand-highlight">PRO</span></span>
+          <span>
+            FleetTrack<span className="brand-highlight">PRO</span>
+          </span>
         </div>
 
         <div className="visual-content">
           <span className="visual-tag">FLEET MANAGEMENT PLATFORM</span>
-          <h1>Gérez votre flotte.<br />
+          <h1>
+            Gérez votre flotte.
+            <br />
             <span>Gardez le contrôle.</span>
           </h1>
           <p>
-            Une plateforme intelligente pour suivre vos véhicules,
-            gérer vos trajets et optimiser vos opérations de transport.
+            Une plateforme intelligente pour suivre vos véhicules, gérer vos
+            trajets et optimiser vos opérations de transport.
           </p>
 
           <div className="visual-stats">
@@ -71,7 +67,9 @@ function Login({ onLoginSuccess }) {
         <div className="login-form-container">
           <div className="mobile-brand">
             <div className="brand-icon">F</div>
-            <strong>FleetTrack<span className="brand-highlight">PRO</span></strong>
+            <strong>
+              FleetTrack<span className="brand-highlight">PRO</span>
+            </strong>
           </div>
 
           <div className="form-heading">
