@@ -9,6 +9,7 @@ import DashboardLayout from "../../components/layout/DashboardLayout";
 import Modal from "../../components/common/Modal";
 import { useLocation, useNavigate } from "react-router-dom";
 import NotFound from "../errors/NotFound";
+import RemorquesSection from "./components/RemorquesSection";
 function AdminDashboard({ user, onLogout }) {
   const [users, setUsers] = useState([]);
   const [listError, setListError] = useState("");
@@ -175,6 +176,12 @@ function AdminDashboard({ user, onLogout }) {
       path: "/admin/camions",
     },
     {
+      id: "trailers",
+      label: "Remorques",
+      icon: "▣",
+      path: "/admin/remorques",
+    },
+    {
       id: "trips",
       label: "Trajets",
       icon: "⇄",
@@ -186,6 +193,7 @@ function AdminDashboard({ user, onLogout }) {
     "/admin/utilisateurs": "users",
     "/admin/camions": "trucks",
     "/admin/trajets": "trips",
+    "/admin/remorques": "trailers",
   };
   useEffect(() => {
     setActiveSection(routes[location.pathname] || "overview");
@@ -194,6 +202,7 @@ function AdminDashboard({ user, onLogout }) {
     overview: "Vue d'ensemble",
     users: "Gestion des utilisateurs",
     trucks: "Gestion des camions",
+    trailers: "Gestion des remorques",
     trips: "Gestion des trajets",
   };
 
@@ -277,6 +286,12 @@ function AdminDashboard({ user, onLogout }) {
                 <small>Gérer les véhicules</small>
                 <b>→</b>
               </button>
+              <button onClick={() => navigate("/admin/remorques")}>
+                <span>▣</span>
+                <strong>Remorques</strong>
+                <small>Gérer les véhicules</small>
+                <b>→</b>
+              </button>
 
               <button onClick={() => navigate("/admin/trajets")}>
                 <span>⇄</span>
@@ -353,6 +368,12 @@ function AdminDashboard({ user, onLogout }) {
       {activeSection === "trucks" && (
         <section className="dashboard-panel management-panel">
           <CamionsSection />
+        </section>
+      )}
+
+      {activeSection === "trailers" && (
+        <section className="dashboard-panel management-panel">
+          <RemorquesSection />
         </section>
       )}
 
